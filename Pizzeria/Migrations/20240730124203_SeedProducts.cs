@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace InFornoWebApp.Migrations
+namespace Pizzeria.Migrations
 {
     public partial class SeedProducts : Migration
     {

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using InFornoWebApp.ViewModels;
+using Pizzeria.ViewModels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 
-namespace InFornoWebApp.Controllers
+namespace Pizzeria.Controllers
 {
     public class AccountController : Controller
     {

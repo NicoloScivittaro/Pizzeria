@@ -2,11 +2,11 @@
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+#pragma warning disable CA1814 
 
 namespace Pizzeria.Migrations
 {
-    public partial class SeedIngredients : Migration
+    public partial class SeedIngredients1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

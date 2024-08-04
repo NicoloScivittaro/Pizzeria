@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using InFornoWebApp.Data;
-using InFornoWebApp.Models;
+using Pizzeria.Data.EntityFrameworkCore;
+using Pizzeria.Models;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;

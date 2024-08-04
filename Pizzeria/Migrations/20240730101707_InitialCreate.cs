@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace InFornoWebApp.Migrations
+namespace Pizzeria.Migrations
 {
     public partial class UniqueInitialCreate : Migration
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InFornoWebApp.ViewModels
+namespace Pizzeria.ViewModels
 {
     public class RegisterViewModel
     {

@@ -1,4 +1,4 @@
-﻿namespace InFornoWebApp.Models
+﻿namespace Pizzeria.Models
 {
     public class ProductIngredient
     {
@@ -6,6 +6,6 @@
         public Product ? Product { get; set; }
 
         public int ? IngredientId { get; set; }
-        public Products ? Ingredient { get; set; }
+        public Product ? Ingredient { get; set; }
     }
 }

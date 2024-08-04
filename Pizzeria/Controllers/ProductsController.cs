@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pizzeria.Models;
+using Pizzeria.Data.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 [Authorize(Roles = "Admin")]

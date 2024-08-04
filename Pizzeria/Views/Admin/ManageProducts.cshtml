@@ -1,4 +1,4 @@
-﻿@model IEnumerable<InFornoWebApp.Models.Product>
+﻿@model IEnumerable<Pizzeria.Models.Product>
 
 @{
     ViewData["Title"] = "Gestione Prodotti";
@@ -30,7 +30,7 @@
                 <td>@product.Price</td>
                 <td>@product.DeliveryTime minuti</td>
                 <td>
-                    @foreach (var ingredient in product.ProductIngredients.Select(pi => pi.Ingredient.Name))
+                    @foreach (var ingredient in product.Ingredients.Select(pi => pi.Product.))
                     {
                         <span>@ingredient</span>
                         <br />

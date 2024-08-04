@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using InFornoWebApp.Data;
-using InFornoWebApp.Models;
+using Pizzeria.Data;
+using Pizzeria.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -9,9 +9,10 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using System;
+using Pizzeria.Data.EntityFrameworkCore;
 using Pizzeria.Models;
 
-namespace InFornoWebApp.Controllers
+namespace Pizzeria.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
@@ -30,24 +31,23 @@ namespace InFornoWebApp.Controllers
             return View();
         }
 
-        public IActionResult ManageProducts()
+        public IActionResult GestisciProdotti()
         {
-            var products = _context.Products
-                .Include(p => p.ProductIngredients)
-                .ThenInclude(pi => pi.Ingredient)
+            var prodotti = _context.Products
+                .Include(p => p.Ingredients)
                 .ToList();
-            return View(products);
+            return View(prodotti);
         }
 
-        public IActionResult CreateProduct()
+        public IActionResult CreaProdotto()
         {
-            ViewBag.Ingredients = _context.Ingredients.ToList();
+            ViewBag.Ingredients = _context.Products.ToList();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProduct(Product product, IFormFile photo, int[] selectedIngredients)
+        public async Task<IActionResult> CreaProdotto(Product product, IFormFile photo, int[] selectedIngredients)
         {
             if (ModelState.IsValid)
             {
@@ -64,52 +64,38 @@ namespace InFornoWebApp.Controllers
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
 
-                if (selectedIngredients != null)
-                {
-                    foreach (var ingredientId in selectedIngredients)
-                    {
-                        _context.ProductIngredients.Add(new ProductIngredient
-                        {
-                            ProductId = product.Id,
-                            IngredientId = ingredientId
-                        });
-                    }
-                    await _context.SaveChangesAsync();
-                }
-
-                return RedirectToAction(nameof(ManageProducts));
+                return RedirectToAction(nameof(GestisciProdotti));
             }
-            ViewBag.Ingredients = _context.Ingredients.ToList();
+            ViewBag.Ingredients = _context.Products.ToList();
             return View(product);
         }
 
-        public IActionResult EditProduct(int id)
+        public IActionResult ModificaProdotto(int id)
         {
-            var product = _context.Products
-                .Include(p => p.ProductIngredients)
-                .ThenInclude(pi => pi.Ingredient)
+            var prodotto = _context.Products
+                .Include(p => p.Ingredients)
                 .SingleOrDefault(p => p.Id == id);
 
-            if (product == null)
+            if (prodotto == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Ingredients = _context.Ingredients.ToList();
-            return View(product);
+            ViewBag.Ingredients = _context.Products.ToList();
+            return View(prodotto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProduct(int id, Product product, IFormFile photo, int[] selectedIngredients)
+        public async Task<IActionResult> ModificaProdotto(int id, Product product, IFormFile photo, int[] selectedIngredients)
         {
             if (ModelState.IsValid)
             {
-                var existingProduct = _context.Products
-                    .Include(p => p.ProductIngredients)
+                var prodottoEsistente = _context.Products
+                    .Include(p => p.Ingredients)
                     .SingleOrDefault(p => p.Id == id);
 
-                if (existingProduct == null)
+                if (prodottoEsistente == null)
                 {
                     return NotFound();
                 }
@@ -121,84 +107,72 @@ namespace InFornoWebApp.Controllers
                     {
                         await photo.CopyToAsync(stream);
                     }
-                    existingProduct.PhotoUrl = "/img/" + photo.FileName;
+                    prodottoEsistente.PhotoUrl = "/img/" + photo.FileName;
                 }
 
-                existingProduct.Name = product.Name;
-                existingProduct.Price = product.Price;
-                existingProduct.DeliveryTime = product.DeliveryTime;
+                prodottoEsistente.Name = product.Name;
+                prodottoEsistente.Price = product.Price;
+                prodottoEsistente.DeliveryTime = product.DeliveryTime;
 
-                _context.ProductIngredients.RemoveRange(existingProduct.ProductIngredients);
-
-                if (selectedIngredients != null)
-                {
-                    foreach (var ingredientId in selectedIngredients)
-                    {
-                        _context.ProductIngredients.Add(new ProductIngredient
-                        {
-                            ProductId = existingProduct.Id,
-                            IngredientId = ingredientId
-                        });
-                    }
-                }
+                
 
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ManageProducts));
+                return RedirectToAction(nameof(GestisciProdotti));
             }
-            ViewBag.Ingredients = _context.Ingredients.ToList();
+            ViewBag.Ingredients = _context.Products.ToList();
             return View(product);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> EliminaProdotto(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.ProductIngredients)
+            var prodotto = await _context.Products
+                .Include(p => p.Ingredients)
                 .SingleOrDefaultAsync(p => p.Id == id);
 
-            if (product == null)
+            if (prodotto == null)
             {
                 return Json(new { success = false, message = "Prodotto non trovato." });
             }
 
-            if (!string.IsNullOrEmpty(product.PhotoUrl))
+            if (!string.IsNullOrEmpty(prodotto.PhotoUrl))
             {
-                var filePath = Path.Combine(_env.WebRootPath, product.PhotoUrl.TrimStart('/'));
+                var filePath = Path.Combine(_env.WebRootPath, prodotto.PhotoUrl.TrimStart('/'));
                 if (System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
                 }
             }
 
-            _context.Products.Remove(product);
+            _context.Products.Remove(prodotto);
             await _context.SaveChangesAsync();
 
             return Json(new { success = true });
         }
 
-        public async Task<IActionResult> ManageOrders()
+        public async Task<IActionResult> GestisciOrdini()
         {
-            var orders = await _context.Orders
+            var ordini = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .ToListAsync();
-            return View(orders);
+            return View(ordini);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateOrderStatus(int id)
+        public async Task<IActionResult> AggiornaStatoOrdine(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            var ordine = await _context.Orders.FindAsync(id);
+            if (ordine == null)
             {
                 return NotFound();
             }
 
-            order.IsCompleted = true;
+            ordine.IsCompleted = true;
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(ManageOrders));
+            return RedirectToAction(nameof(GestisciOrdini));
         }
 
         public IActionResult Dashboard()
@@ -207,24 +181,24 @@ namespace InFornoWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetTotalOrders(DateTime date)
+        public async Task<IActionResult> GetTotaleOrdini(DateTime data)
         {
-            var totalOrders = await _context.Orders
-                .Where(o => o.OrderDate.Date == date.Date && o.IsCompleted)
+            var totaleOrdini = await _context.Orders
+                .Where(o => o.OrderDate.Date == data.Date && o.IsCompleted)
                 .CountAsync();
 
-            return Json(new { totalOrders });
+            return Json(new { totaleOrdini });
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetTotalRevenue(DateTime date)
+        public async Task<IActionResult> GetTotaleRicavi(DateTime data)
         {
-            var totalRevenue = await _context.Orders
-                .Where(o => o.OrderDate.Date == date.Date && o.IsCompleted)
+            var totaleRicavi = await _context.Orders
+                .Where(o => o.OrderDate.Date == data.Date && o.IsCompleted)
                 .SelectMany(o => o.OrderItems)
                 .SumAsync(oi => oi.Product.Price * oi.Quantity);
 
-            return Json(new { totalRevenue });
+            return Json(new { totaleRicavi });
         }
     }
 }
